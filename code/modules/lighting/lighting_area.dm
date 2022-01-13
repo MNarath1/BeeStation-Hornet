@@ -19,9 +19,6 @@
 
 /area/vv_edit_var(var_name, var_value)
 	switch(var_name)
-		if(NAMEOF(src, dynamic_lighting))
-			set_dynamic_lighting(var_value)
-			return TRUE
 		if("base_lighting")
 			set_base_lighting(new_base_lighting = var_value)
 			return TRUE

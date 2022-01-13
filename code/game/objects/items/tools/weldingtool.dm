@@ -29,7 +29,6 @@
 	var/max_fuel = 20 	//The max amount of fuel the welder can hold
 	var/change_icons = 1
 	var/can_off_process = 0
-	var/light_intensity = 1 //how powerful the emitted light is when used.
 	light_color = LIGHT_COLOR_FIRE
 	var/progress_flash_divisor = 10
 	var/burned_fuel_for = 0	//when fuel was last removed
@@ -136,7 +135,7 @@
 		var/turf/location = get_turf(user)
 		location.hotspot_expose(700, 50, 1)
 		if(get_fuel() <= 0)
-			set_light_on(0)
+			set_light(0)
 
 		if(isliving(O))
 			var/mob/living/L = O
