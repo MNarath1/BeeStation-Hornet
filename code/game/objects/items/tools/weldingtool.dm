@@ -33,6 +33,7 @@
 	light_color = LIGHT_COLOR_FIRE
 	var/progress_flash_divisor = 10
 	var/burned_fuel_for = 0	//when fuel was last removed
+	var/light_intensity = 2
 	heat = 3800
 	tool_behaviour = TOOL_WELDER
 	toolspeed = 1
@@ -135,7 +136,7 @@
 		var/turf/location = get_turf(user)
 		location.hotspot_expose(700, 50, 1)
 		if(get_fuel() <= 0)
-			set_light(0)
+			set_light_on(0)
 
 		if(isliving(O))
 			var/mob/living/L = O
@@ -372,7 +373,7 @@
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 	icon_state = "brasswelder"
 	item_state = "brasswelder"
-
+	light_intensity = 1
 
 /obj/item/weldingtool/experimental/process(delta_time)
 	..()

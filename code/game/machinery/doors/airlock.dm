@@ -108,6 +108,8 @@
 	rad_flags = RAD_PROTECT_CONTENTS | RAD_NO_CONTAMINATE
 	rad_insulation = RAD_MEDIUM_INSULATION
 
+	var/electrification_timing // Set to true while electrified_loop is running, to prevent multiple being started
+
 	var/static/list/airlock_overlays = list()
 
 /obj/machinery/door/airlock/Initialize()
@@ -228,7 +230,7 @@
 /obj/machinery/door/airlock/vv_edit_var(var_name)
 	. = ..()
 	switch (var_name)
-		if ("cyclelinkeddir")
+		if (NAMEOF(src, cyclelinkeddir))
 			cyclelinkairlock()
 
 /obj/machinery/door/airlock/check_access_ntnet(datum/netdata/data)
@@ -300,6 +302,7 @@
 	if(locked == should_bolt)
 		return
 	SEND_SIGNAL(src, COMSIG_AIRLOCK_SET_BOLT, should_bolt)
+	ui_update()
 	. = locked
 	locked = should_bolt
 
@@ -477,15 +480,13 @@
 		if(secondsMainPowerLost>0)
 			if(!wires.is_cut(WIRE_POWER1) && !wires.is_cut(WIRE_POWER2))
 				secondsMainPowerLost -= 1
-				updateDialog()
 			cont = TRUE
 		if(secondsBackupPowerLost>0)
 			if(!wires.is_cut(WIRE_BACKUP1) && !wires.is_cut(WIRE_BACKUP2))
 				secondsBackupPowerLost -= 1
-				updateDialog()
 			cont = TRUE
 	spawnPowerRestoreRunning = FALSE
-	updateDialog()
+	ui_update()
 	update_icon()
 
 /obj/machinery/door/airlock/proc/loseMainPower()
@@ -854,20 +855,27 @@
 	return ..()
 
 /obj/machinery/door/airlock/proc/electrified_loop()
+	if(electrification_timing)
+		return // Don't start another timer if one is already running
+
+	electrification_timing = TRUE
 	while (secondsElectrified > MACHINE_NOT_ELECTRIFIED)
+		secondsElectrified--
+
 		sleep(10)
 		if(QDELETED(src))
 			return
+	electrification_timing = FALSE
 
-		secondsElectrified--
-		updateDialog()
 	// This is to protect against changing to permanent, mid loop.
 	if(secondsElectrified == MACHINE_NOT_ELECTRIFIED)
 		set_electrified(MACHINE_NOT_ELECTRIFIED)
 	else
 		set_electrified(MACHINE_ELECTRIFIED_PERMANENT)
-	updateDialog()
+	ui_update()
 
+//This code might be completely unused, but I'm too afraid to touch it.
+//That said, commenting it out didn't seem to break anything.
 /obj/machinery/door/airlock/Topic(href, href_list, var/nowindow = 0)
 	// If you add an if(..()) check you must first remove the var/nowindow parameter.
 	// Otherwise it will runtime with this kind of error: null.Topic()
@@ -885,7 +893,6 @@
 		updateUsrDialog()
 	else
 		updateDialog()
-
 
 /obj/machinery/door/airlock/attackby(obj/item/C, mob/user, params)
 	if(!issilicon(user) && !IsAdminGhost(user))
@@ -1195,6 +1202,7 @@
 
 	if(!density)
 		return TRUE
+	ui_update()
 	SEND_SIGNAL(src, COMSIG_AIRLOCK_OPEN, forced)
 	operating = TRUE
 	update_icon(AIRLOCK_OPENING, 1)
@@ -1208,6 +1216,7 @@
 	layer = OPEN_DOOR_LAYER
 	update_icon(AIRLOCK_OPEN, 1)
 	operating = FALSE
+	ui_update()
 	if(delayed_close_requested)
 		delayed_close_requested = FALSE
 		addtimer(CALLBACK(src, .proc/close), 1)
@@ -1242,6 +1251,7 @@
 		SSexplosions.med_mov_atom += killthis
 
 	SEND_SIGNAL(src, COMSIG_AIRLOCK_CLOSE, forced)
+	ui_update()
 	operating = TRUE
 	update_icon(AIRLOCK_CLOSING, 1)
 	layer = CLOSED_DOOR_LAYER
@@ -1262,8 +1272,10 @@
 	update_icon(AIRLOCK_CLOSED, 1)
 	operating = FALSE
 	delayed_close_requested = FALSE
+	ui_update()
 	if(safe)
 		CheckForMobs()
+	ui_update()
 	return TRUE
 
 /obj/machinery/door/airlock/proc/prison_open()
@@ -1306,7 +1318,7 @@
 	rebuild_parts()
 	update_icon()
 
-/obj/machinery/door/airlock/CanAStarPass(obj/item/card/id/ID)
+/obj/machinery/door/airlock/CanAStarPass(obj/item/card/id/ID, to_dir, atom/movable/caller)
 //Airlock is passable if it is open (!density), bot has access, and is not bolted shut or powered off)
 	return !density || (check_access(ID) && !locked && hasPower())
 
@@ -1385,6 +1397,7 @@
 /obj/machinery/door/airlock/proc/set_electrified(seconds, mob/user)
 	secondsElectrified = seconds
 	diag_hud_set_electrified()
+	ui_update()
 	if(secondsElectrified > MACHINE_NOT_ELECTRIFIED)
 		INVOKE_ASYNC(src, .proc/electrified_loop)
 
@@ -1473,6 +1486,11 @@
 	else if(istype(note, /obj/item/photo))
 		return "photo"
 
+
+/obj/machinery/door/airlock/ui_requires_update(mob/user, datum/tgui/ui)
+	. = ..()
+	if(secondsMainPowerLost || secondsBackupPowerLost || secondsElectrified)
+		. = TRUE // Autoupdate while counters are counting down
 
 /obj/machinery/door/airlock/ui_state(mob/user)
 	return GLOB.default_state
@@ -1573,7 +1591,7 @@
 			. = TRUE
 
 /obj/machinery/door/airlock/proc/user_allowed(mob/user)
-	return (issilicon(user) && canAIControl(user)) || IsAdminGhost(user)
+	return (issilicon(user) && allowed(user) && canAIControl(user)) || IsAdminGhost(user)
 
 /obj/machinery/door/airlock/proc/shock_restore(mob/user)
 	if(!user_allowed(user))
@@ -1619,6 +1637,7 @@
 		return
 	emergency = !emergency
 	update_icon()
+	ui_update()
 
 /obj/machinery/door/airlock/proc/user_toggle_open(mob/user)
 	if(!user_allowed(user))

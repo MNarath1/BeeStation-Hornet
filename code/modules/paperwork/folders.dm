@@ -26,7 +26,7 @@
 
 /obj/item/folder/examine()
 	. = ..()
-	if(contents)
+	if(length(contents))
 		. += "<span class='notice'>Alt-click to remove [contents[1]].</span>"
 
 /obj/item/folder/proc/rename(mob/user)
@@ -52,7 +52,7 @@
 
 /obj/item/folder/AltClick(mob/user)
 	..()
-	if(contents)
+	if(length(contents))
 		remove_item(contents[1], user)
 
 /obj/item/folder/update_overlays()
@@ -73,11 +73,6 @@
 	else if(istype(W, /obj/item/pen))
 		rename(user)
 		ui_update()
-
-/obj/item/folder/attack_self(mob/user)
-	add_fingerprint(usr)
-	ui_interact(user)
-	return
 
 /obj/item/folder/ui_interact(mob/user, datum/tgui/ui)
 	ui = SStgui.try_update_ui(user, src, ui)

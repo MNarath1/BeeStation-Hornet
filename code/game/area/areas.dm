@@ -51,8 +51,11 @@
 
 	var/ambience_index = AMBIENCE_GENERIC
 	var/list/ambientsounds
+
 	var/ambient_buzz = 'sound/ambience/shipambience.ogg' // Ambient buzz of the station, plays repeatedly, also IC
-	var/ambientmusic
+
+	var/ambient_music_index
+	var/list/ambientmusic
 
 	flags_1 = CAN_BE_DIRTY_1
 
@@ -81,6 +84,9 @@
 
 	///This datum, if set, allows terrain generation behavior to be ran on Initialize()
 	var/datum/map_generator/map_generator
+
+	///Lazylist that contains additional turfs that map generation should be ran on. This is used for ruins which need a noop turf under non-noop areas so they don't leave genturfs behind.
+	var/list/additional_genturfs
 
 
 /**
@@ -140,8 +146,11 @@ GLOBAL_LIST_EMPTY(teleportlocs)
 	icon_state = ""
 	canSmoothWithAreas = typecacheof(canSmoothWithAreas)
 
-	if(!ambientsounds)
+	if(!ambientsounds && ambience_index)
 		ambientsounds = GLOB.ambience_assoc[ambience_index]
+
+	if(!ambientmusic && ambient_music_index)
+		ambientmusic = GLOB.ambient_music_assoc[ambient_music_index]
 
 	if(requires_power)
 		luminosity = 0
@@ -171,6 +180,9 @@ GLOBAL_LIST_EMPTY(teleportlocs)
 		var/list/turfs = list()
 		for(var/turf/T in contents)
 			turfs += T
+		if(additional_genturfs)
+			turfs += additional_genturfs
+			additional_genturfs = null
 		map_generator.generate_terrain(turfs)
 
 /area/proc/test_gen()
@@ -178,6 +190,9 @@ GLOBAL_LIST_EMPTY(teleportlocs)
 		var/list/turfs = list()
 		for(var/turf/T in contents)
 			turfs += T
+		if(additional_genturfs)
+			turfs += additional_genturfs
+			additional_genturfs = null
 		map_generator.generate_terrain(turfs)
 
 
@@ -576,19 +591,19 @@ GLOBAL_LIST_EMPTY(teleportlocs)
   *
   * If the area has ambience, then it plays some ambience music to the ambience channel
   */
-/area/Entered(atom/movable/M)
+/area/Entered(atom/movable/arrived, area/old_area)
 	set waitfor = FALSE
-	SEND_SIGNAL(src, COMSIG_AREA_ENTERED, M)
-	SEND_SIGNAL(M, COMSIG_ENTER_AREA, src) //The atom that enters the area
+	SEND_SIGNAL(src, COMSIG_AREA_ENTERED, arrived, old_area)
+	SEND_SIGNAL(arrived, COMSIG_ENTER_AREA, src) //The atom that enters the area
 
 /**
   * Called when an atom exits an area
   *
   * Sends signals COMSIG_AREA_EXITED and COMSIG_EXIT_AREA (to the atom)
   */
-/area/Exited(atom/movable/M)
-	SEND_SIGNAL(src, COMSIG_AREA_EXITED, M)
-	SEND_SIGNAL(M, COMSIG_EXIT_AREA, src) //The atom that exits the area
+/area/Exited(atom/movable/gone, direction)
+	SEND_SIGNAL(src, COMSIG_AREA_EXITED, gone, direction)
+	SEND_SIGNAL(gone, COMSIG_EXIT_AREA, src) //The atom that exits the area
 
 /**
   * Returns true if this atom has gravity for the passed in turf or other gravity-mimicking behaviors

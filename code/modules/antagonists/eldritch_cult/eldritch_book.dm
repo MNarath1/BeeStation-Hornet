@@ -113,9 +113,8 @@
 					continue
 				if(cultie.gain_knowledge(EK))
 					charge -= text2num(params["cost"])
+					log_game("[initial(EK.name)] purchased by [cultie.owner.current.ckey]/[cultie.owner.current.name] the [cultie.owner.current.job] for [params["cost"]] points, [charge] points remaining.")
 					return TRUE
-
-	update_icon() // Not applicable to all objects.
 
 /obj/item/forbidden_book/ui_close(mob/user, datum/tgui/tgui)
 	flick("book_closing",src)

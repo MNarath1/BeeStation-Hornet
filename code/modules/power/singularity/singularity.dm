@@ -7,6 +7,7 @@
 	icon_state = "singularity_s1"
 	anchored = TRUE
 	density = TRUE
+	var/is_real = TRUE
 	move_resist = INFINITY
 	layer = MASSIVE_OBJ_LAYER
 	//It's a black hole, it sucks in the light

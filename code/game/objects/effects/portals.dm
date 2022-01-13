@@ -17,6 +17,8 @@
 	icon = 'icons/obj/stationobjs.dmi'
 	icon_state = "portal"
 	anchored = TRUE
+	density = TRUE // dense for receiving bumbs
+	layer = HIGH_OBJ_LAYER
 	light_power = 5
 	light_range = MINIMUM_LIGHT_SHADOW_RADIUS
 	light_color = LIGHT_COLOR_BLUE
@@ -49,30 +51,27 @@
 
 /obj/effect/portal/attackby(obj/item/W, mob/user, params)
 	if(user && Adjacent(user))
-		user.forceMove(get_turf(src))
+		teleport(user)
 		return TRUE
 
-/obj/effect/portal/Crossed(atom/movable/AM, oldloc, force_stop = 0)
-	if(force_stop)
-		return ..()
-	if(isobserver(AM))
-		return ..()
-	if(linked && (get_turf(oldloc) == get_turf(linked)))
-		return ..()
-	if(!teleport(AM))
-		return ..()
+/obj/effect/portal/Bumped(atom/movable/bumper)
+	teleport(bumper)
 
-/obj/effect/portal/attack_tk(mob/user)
-	return
+/obj/effect/portal/CanAllowThrough(atom/movable/mover, border_dir)
+	. = ..()
+	if(HAS_TRAIT(mover, TRAIT_NO_TELEPORT))
+		return TRUE
 
 /obj/effect/portal/attack_hand(mob/user)
 	. = ..()
 	if(.)
 		return
-	if(get_turf(user) == get_turf(src))
-		teleport(user)
 	if(Adjacent(user))
-		user.forceMove(get_turf(src))
+		teleport(user)
+
+/obj/effect/portal/attack_robot(mob/living/user)
+	if(Adjacent(user))
+		teleport(user)
 
 /obj/effect/portal/Initialize(mapload, _creator, _lifespan = 0, obj/effect/portal/_linked, automatic_link = FALSE, turf/hard_target_override, atmos_link_override)
 	. = ..()

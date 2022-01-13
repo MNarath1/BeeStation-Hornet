@@ -77,6 +77,10 @@
 	//SECHUD
 	var/datum/atom_hud/secsensor = GLOB.huds[DATA_HUD_SECURITY_ADVANCED]
 	secsensor.add_hud_to(src)
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = .proc/on_entered,
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
 
 /mob/living/simple_animal/bot/secbot/update_icon()
 	if(mode == BOT_HUNT)
@@ -445,14 +449,15 @@ Auto Patrol: []"},
 		mode = BOT_HUNT
 		enable_sirens()
 
-/mob/living/simple_animal/bot/secbot/Crossed(atom/movable/AM)
+/mob/living/simple_animal/bot/secbot/proc/on_entered(datum/source, atom/movable/AM)
+	SIGNAL_HANDLER
+
 	if(has_gravity() && ismob(AM) && target)
 		var/mob/living/carbon/C = AM
 		if(!istype(C) || !C || in_range(src, target))
 			return
 		knockOver(C)
 		return
-	..()
 
 /mob/living/simple_animal/bot/secbot/proc/enable_sirens()
 	set waitfor = FALSE

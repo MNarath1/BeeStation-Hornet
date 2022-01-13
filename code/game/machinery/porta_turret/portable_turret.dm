@@ -945,6 +945,10 @@
 	if(.)
 		return
 
+	if(!allowed(usr))
+		to_chat(usr, "<span class='warning'>Invalid access.</span>")
+		return
+
 	switch(action)
 		if("lock")
 			if(!usr.has_unlimited_silicon_privilege)
@@ -969,18 +973,21 @@
 	add_hiddenprint(user)
 	log_combat(user, src, "[lethal ? "enabled" : "disabled"] lethals on")
 	updateTurrets()
+	ui_update()
 
 /obj/machinery/turretid/proc/toggle_on(mob/user)
 	enabled = !enabled
 	add_hiddenprint(user)
 	log_combat(user, src, "[enabled ? "enabled" : "disabled"]")
 	updateTurrets()
+	ui_update()
 
 /obj/machinery/turretid/proc/shoot_silicons(mob/user)
 	shoot_cyborgs = !shoot_cyborgs
 	add_hiddenprint(user)
 	log_combat(user, src, "[shoot_cyborgs ? "Shooting Borgs" : "Not Shooting Borgs"]")
 	updateTurrets()
+	ui_update()
 
 /obj/machinery/turretid/proc/updateTurrets()
 	for (var/obj/machinery/porta_turret/aTurret in turrets)

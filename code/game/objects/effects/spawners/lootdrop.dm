@@ -43,6 +43,14 @@
 			/obj/item/storage/box/donkpockets = 1
 		)
 
+/obj/effect/spawner/lootdrop/donkpocketsfinlandia
+	name = "5% gondola pocket spawner"
+	lootdoubles = FALSE
+
+	loot = list(
+			/obj/item/storage/box/donkpockets = 19,
+			/obj/item/storage/box/donkpockets/donkpocketgondolafinlandia = 1
+		)
 
 /obj/effect/spawner/lootdrop/armory_contraband
 	name = "armory contraband gun spawner"
@@ -238,7 +246,7 @@
 		/obj/item/organ/liver/cybernetic/upgraded/ipc = 3,
 		/obj/item/organ/lungs/cybernetic = 4,
 		/obj/item/organ/lungs/cybernetic/upgraded= 2,
-		/obj/item/organ/stomach/cell = 4,
+		/obj/item/organ/stomach/battery/ipc = 4,
 		/obj/item/organ/heart/clockwork = 6,
 		/obj/item/organ/stomach/clockwork = 6,
 		/obj/item/organ/liver/clockwork = 6,
@@ -501,7 +509,7 @@
 		/obj/effect/trap/nexus/trickyspawner/clownmutant = 2,
 		/obj/effect/trap/nexus/trickyspawner/honkling = 3,
 		/obj/effect/trap/nexus/cluwnecurse = 1)
-		
+
 /obj/effect/spawner/lootdrop/megafaunaore
 	name = "megafauna ore drop"
 	lootcount = 100
@@ -511,7 +519,7 @@
 		/obj/item/stack/ore/glass/basalt = 5,
 		/obj/item/stack/ore/plasma = 3,
 		/obj/item/stack/ore/silver = 3,
-		/obj/item/stack/ore/gold = 3, 
+		/obj/item/stack/ore/gold = 3,
 		/obj/item/stack/ore/copper = 3,
 		/obj/item/stack/ore/titanium = 2,
 		/obj/item/stack/ore/uranium = 2,

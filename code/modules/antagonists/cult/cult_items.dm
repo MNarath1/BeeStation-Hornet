@@ -17,7 +17,6 @@
 	inhand_x_dimension = 32
 	inhand_y_dimension = 32
 	w_class = WEIGHT_CLASS_SMALL
-	block_upgrade_walk = 1
 	block_power = 0
 	block_level = 0
 	block_flags = BLOCKING_ACTIVE | BLOCKING_NASTY
@@ -44,7 +43,6 @@
 	w_class = WEIGHT_CLASS_BULKY
 	block_level = 1
 	block_upgrade_walk = 1
-	block_power = 30
 	block_flags = BLOCKING_ACTIVE | BLOCKING_NASTY
 	force = 30
 	throwforce = 10
@@ -450,6 +448,7 @@
 	item_state = "blindfold"
 	flash_protect = 1
 	night_vision_colour = "#e97e7e"
+	vision_correction = 1
 
 /obj/item/clothing/glasses/hud/health/night/cultblind/equipped(mob/living/user, slot)
 	..()
@@ -676,7 +675,7 @@
 			else
 				L.visible_message("<span class='warning'>[src] bounces off of [L], as if repelled by an unseen force!</span>")
 		else if(!..())
-			if(!L.anti_magic_check())
+			if(!L.anti_magic_check(holy = TRUE))
 				L.Knockdown(50)
 			break_spear(T)
 	else
@@ -947,7 +946,7 @@
 			else
 				L.visible_message("<span class='warning'>[src] bounces off of [L], as if repelled by an unseen force!</span>")
 		else if(!..())
-			if(!L.anti_magic_check())
+			if(!L.anti_magic_check(holy = TRUE))
 				L.Knockdown(30)
 				if(D?.thrower)
 					for(var/mob/living/Next in orange(2, T))

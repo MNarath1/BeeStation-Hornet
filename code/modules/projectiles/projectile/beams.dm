@@ -49,6 +49,7 @@
 	name = "practice laser"
 	damage = 0
 	nodamage = TRUE
+	martial_arts_no_deflect = TRUE
 
 /obj/item/projectile/beam/scatter
 	name = "laser pellet"
@@ -61,7 +62,7 @@
 	damage = 15
 	irradiate = 300
 	range = 15
-	pass_flags = PASSTABLE | PASSGLASS | PASSGRILLE | PASSCLOSEDTURF
+	pass_flags = PASSTABLE | PASSGLASS | PASSGRILLE | PASSCLOSEDTURF | PASSMACHINE | PASSSTRUCTURE | PASSDOORS
 
 	impact_effect_type = /obj/effect/temp_visual/impact_effect/green_laser
 	light_color = LIGHT_COLOR_GREEN

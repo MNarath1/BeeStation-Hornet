@@ -69,10 +69,31 @@
 	return ..()
 
 /mob/living/carbon/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum)
-	. = ..()
 	var/hurt = TRUE
 	if(throwingdatum.force <= MOVE_FORCE_WEAK)
 		hurt = FALSE
+
+	if(iscarbon(hit_atom) && hit_atom != src)
+		var/mob/living/carbon/victim = hit_atom
+		if(!(victim.movement_type & FLYING))
+			if(victim.can_catch_item())
+				visible_message("<span class='danger'>[victim] catches [src]!</span>",\
+					"<span class='userdanger'>[victim] catches you!</span>")
+				grabbedby(victim, TRUE)
+				victim.throw_mode_off()
+				log_combat(victim, src, "caught (thrown mob)")
+				return
+			if(hurt)
+				victim.take_bodypart_damage(10,check_armor = TRUE)
+				take_bodypart_damage(10,check_armor = TRUE)
+				victim.Paralyze(20)
+				Paralyze(20)
+				visible_message("<span class='danger'>[src] crashes into [victim], knocking them both over!</span>",\
+					"<span class='userdanger'>You violently crash into [victim]!</span>")
+			playsound(src,'sound/weapons/punch1.ogg',50,1)
+
+	. = ..()
+
 	if(istype(throwingdatum, /datum/thrownthing))
 		var/datum/thrownthing/D = throwingdatum
 		if(iscyborg(D.thrower))
@@ -83,19 +104,6 @@
 		if(hurt)
 			Paralyze(20)
 			take_bodypart_damage(10,check_armor = TRUE)
-	if(iscarbon(hit_atom) && hit_atom != src)
-		var/mob/living/carbon/victim = hit_atom
-		if(victim.movement_type & FLYING)
-			return
-		if(hurt)
-			victim.take_bodypart_damage(10,check_armor = TRUE)
-			take_bodypart_damage(10,check_armor = TRUE)
-			victim.Paralyze(20)
-			Paralyze(20)
-			visible_message("<span class='danger'>[src] crashes into [victim], knocking them both over!</span>",\
-				"<span class='userdanger'>You violently crash into [victim]!</span>")
-		playsound(src,'sound/weapons/punch1.ogg',50,1)
-
 
 //Throwing stuff
 /mob/living/carbon/proc/toggle_throw_mode()
@@ -120,6 +128,7 @@
 
 /mob/proc/throw_item(atom/target)
 	SEND_SIGNAL(src, COMSIG_MOB_THROW, target)
+	SEND_GLOBAL_SIGNAL(COMSIG_GLOB_CARBON_THROW_THING, src, target)
 	return TRUE
 
 /mob/living/carbon/throw_item(atom/target)
@@ -167,71 +176,10 @@
 	. = (handcuffed || (!ignore_grab && pulledby && pulledby.grab_state >= GRAB_NECK))
 
 /mob/living/carbon/proc/canBeHandcuffed()
-	return 0
-
-
-/mob/living/carbon/show_inv(mob/user)
-	user.set_machine(src)
-	var/dat = {"
-	<HR>
-	<B><FONT size=3>[name]</FONT></B>
-	<HR>
-	<BR><B>Head:</B> <A href='?src=[REF(src)];item=[ITEM_SLOT_HEAD]'>[(head && !(head.item_flags & ABSTRACT)) ? head : "Nothing"]</A>"}
-
-	var/list/obscured = check_obscured_slots()
-
-	if(ITEM_SLOT_NECK in obscured)
-		dat += "<BR><B>Neck:</B> Obscured"
-	else
-		dat += "<BR><B>Neck:</B> <A href='?src=[REF(src)];item=[ITEM_SLOT_NECK]'>[(wear_neck && !(wear_neck.item_flags & ABSTRACT)) ? (wear_neck) : "Nothing"]</A>"
-
-	if(ITEM_SLOT_MASK in obscured)
-		dat += "<BR><B>Mask:</B> Obscured"
-	else
-		dat += "<BR><B>Mask:</B> <A href='?src=[REF(src)];item=[ITEM_SLOT_MASK]'>[(wear_mask && !(wear_mask.item_flags & ABSTRACT))	? wear_mask	: "Nothing"]</a>"
-
-	for(var/i in 1 to held_items.len)
-		var/obj/item/I = get_item_for_held_index(i)
-		dat += "<BR><B>[get_held_index_name(i)]:</B> </td><td><A href='?src=[REF(src)];item=[ITEM_SLOT_HANDS];hand_index=[i]'>[(I && !(I.item_flags & ABSTRACT)) ? I : "Nothing"]</a>"
-
-	dat += "<BR><B>Back:</B> <A href='?src=[REF(src)];item=[ITEM_SLOT_BACK]'>[back ? back : "Nothing"]</A>"
-
-	if(istype(wear_mask, /obj/item/clothing/mask) && istype(back, /obj/item/tank))
-		dat += "<BR><A href='?src=[REF(src)];internal=1'>[internal ? "Disable Internals" : "Set Internals"]</A>"
-
-	if(handcuffed)
-		dat += "<BR><A href='?src=[REF(src)];item=[ITEM_SLOT_HANDCUFFED]'>Handcuffed</A>"
-	if(legcuffed)
-		dat += "<BR><A href='?src=[REF(src)];item=[ITEM_SLOT_LEGCUFFED]'>Legcuffed</A>"
-
-	dat += {"
-	<BR>
-	<BR><A href='?src=[REF(user)];mach_close=mob[REF(src)]'>Close</A>
-	"}
-	user << browse(dat, "window=mob[REF(src)];size=325x500")
-	onclose(user, "mob[REF(src)]")
+	return FALSE
 
 /mob/living/carbon/Topic(href, href_list)
 	..()
-	//strip panel
-	if(href_list["internal"] && usr.canUseTopic(src, BE_CLOSE, NO_DEXTERY))
-		var/slot = text2num(href_list["internal"])
-		var/obj/item/ITEM = get_item_by_slot(slot)
-		if(ITEM && istype(ITEM, /obj/item/tank) && wear_mask && (wear_mask.clothing_flags & MASKINTERNALS))
-			visible_message("<span class='danger'>[usr] tries to [internal ? "close" : "open"] the valve on [src]'s [ITEM.name].</span>", \
-							"<span class='userdanger'>You try to [internal ? "close" : "open"] the valve on [src]'s [ITEM.name].</span>")
-			if(do_mob(usr, src, POCKET_STRIP_DELAY))
-				if(internal)
-					internal = null
-					update_internals_hud_icon(0)
-				else if(ITEM && istype(ITEM, /obj/item/tank))
-					if((wear_mask && (wear_mask.clothing_flags & MASKINTERNALS)) || getorganslot(ORGAN_SLOT_BREATHING_TUBE))
-						internal = ITEM
-						update_internals_hud_icon(1)
-
-				visible_message("<span class='danger'>[usr] [internal ? "opens" : "closes"] the valve on [src]'s [ITEM.name].</span>", \
-								"<span class='userdanger'>You [internal ? "open" : "close"] the valve on [src]'s [ITEM.name].</span>")
-
 	if(href_list["embedded_object"] && usr.canUseTopic(src, BE_CLOSE, NO_DEXTERY))
 		var/obj/item/bodypart/L = locate(href_list["embedded_limb"]) in bodyparts
 		if(!L)
@@ -452,6 +400,9 @@
 
 	if(!has_mouth())
 		return 1
+
+	if(HAS_TRAIT(src, TRAIT_NOVOMIT))
+		return TRUE
 
 	if(nutrition < 100 && !blood)
 		if(message)
@@ -883,16 +834,6 @@
 			r_arm_index_next += 2
 			O.held_index = r_arm_index_next //2, 4, 6, 8...
 			hand_bodyparts += O
-
-/mob/living/carbon/do_after_coefficent()
-	. = ..()
-	var/datum/component/mood/mood = src.GetComponent(/datum/component/mood) //Currently, only carbons or higher use mood, move this once that changes.
-	if(mood)
-		switch(mood.sanity) //Alters do_after delay based on how sane you are
-			if(-INFINITY to SANITY_DISTURBED)
-				. *= 1.25
-			if(SANITY_NEUTRAL to INFINITY)
-				. *= 0.90
 
 /mob/living/carbon/proc/create_internal_organs()
 	for(var/X in internal_organs)
