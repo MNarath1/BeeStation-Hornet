@@ -27,12 +27,9 @@
 	max_integrity = 200
 	armor = list("melee" = 0, "bullet" = 0, "laser" = 0, "energy" = 0, "bomb" = 0, "bio" = 0, "rad" = 0, "fire" = 100, "acid" = 70, "stamina" = 0)
 	resistance_flags = FIRE_PROOF
-	light_system = MOVABLE_LIGHT
-	light_range = 6
-	light_power = 1
-	light_on = TRUE
 	var/twohand_force = 34
 	var/hacked = FALSE
+	var/brightness_on = 6 //TWICE AS BRIGHT AS A REGULAR ESWORD
 	var/list/possible_colors = list("red", "blue", "green", "purple")
 
 /obj/item/dualsaber/Initialize()
@@ -73,7 +70,7 @@
 	w_class = w_class_on
 	hitsound = 'sound/weapons/blade1.ogg'
 	START_PROCESSING(SSobj, src)
-	set_light(TRUE)
+	set_light(brightness_on)
 
 /// Triggered on unwield of two handed item
 /// switch hitsounds
@@ -84,7 +81,7 @@
 	w_class = initial(w_class)
 	hitsound = "swing_hit"
 	STOP_PROCESSING(SSobj, src)
-	set_light(FALSE)
+	set_light(0)
 
 /obj/item/dualsaber/update_icon()
 	icon_state = "dualsaber0"

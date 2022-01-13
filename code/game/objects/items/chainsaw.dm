@@ -99,20 +99,14 @@
 	onsound = 'sound/weapons/echainsawon.ogg'
 	offsound = 'sound/weapons/echainsawoff.ogg'
 	on = FALSE
-	light_system = MOVABLE_LIGHT
-	light_range = 3
-	light_power = 1
-	light_on = TRUE
+	var/brightness_on = 3
 
 /obj/item/chainsaw/energy/attack_self(mob/user)
 	on = !on
 	to_chat(user, "As you pull the starting cord dangling from [src], [on ? "it begins to whirr intimidatingly." : "the plasma microblades stop moving."]")
 	force = on ? force_on : initial(force)
 	playsound(user, on ? onsound : offsound , 50, 1)
-	if(on)
-		set_light(TRUE)
-	else
-		set_light(FALSE)
+	set_light(on ? brightness_on : 0)
 	throwforce = on ? force_on : initial(force)
 	icon_state = "echainsaw_[on ? "on" : "off"]"
 
@@ -138,7 +132,7 @@
 	attack_weight = 3 //fear him
 	armour_penetration = 75
 	var/knockdown = 1
-	light_range = 6
+	brightness_on = 6
 
 /obj/item/chainsaw/energy/doom/attack(mob/living/target)
 	..()

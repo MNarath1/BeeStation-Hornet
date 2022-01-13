@@ -105,8 +105,8 @@
 	discovery_points = 1000
 	light_system = MOVABLE_LIGHT
 	light_range = 3
-	light_on = TRUE
-	light_color = LIGHT_COLOR_CYAN
+	///Bitflags to store boolean conditions, such as whether the light is on or off.
+	var/swarmer_flags = NONE
 
 /mob/living/simple_animal/hostile/swarmer/Initialize()
 	. = ..()
@@ -680,9 +680,9 @@
 
 /mob/living/simple_animal/hostile/swarmer/proc/ToggleLight()
 	if(!light_range)
-		set_light_on(TRUE)
+		set_light(3)
 	else
-		set_light_on(FALSE)
+		set_light(0)
 
 /mob/living/simple_animal/hostile/swarmer/proc/swarmer_chat(msg)
 	var/rendered = "<B>Swarm communication - [src]</b> [say_quote(msg)]"

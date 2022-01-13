@@ -45,6 +45,7 @@
 /obj/item/pda/ai
 	icon = null
 	ttone = "data"
+	fon = FALSE
 	detonatable = FALSE
 
 /obj/item/pda/ai/attack_self(mob/user)
