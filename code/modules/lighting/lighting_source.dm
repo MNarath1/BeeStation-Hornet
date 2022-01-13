@@ -23,6 +23,7 @@
 	//OUR LIGHTING MASK
 	//EXISTS IN NULLSPACE, USED AS AN IMAGE FOR CLIENTS
 	var/atom/movable/lighting_mask/our_mask
+	var/in_deletion
 
 // Thanks to Lohikar for flinging this tiny bit of code at me, increasing my brain cell count from 1 to 2 in the process.
 // This macro will only offset up to 1 tile, but anything with a greater offset is an outlier and probably should handle its own lighting offsets.
@@ -66,7 +67,7 @@
 	log_lighting("Lighting source created at [x], [y], [z] with radius of [light_range]")
 
 /datum/light_source/Destroy(...)
-
+	in_deletion = TRUE
 	SSlighting.destroy_source(src)
 	source_atom.light = null
 	//Remove references to ourself.

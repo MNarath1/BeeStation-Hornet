@@ -107,7 +107,7 @@
 
 //Starts rendering a light source
 /atom/movable/lighting_mask_holder/proc/start_rendering_source(datum/light_source/rendering_source)
-	if(sources_visible[rendering_source])
+	if(!rendering_source || sources_visible[rendering_source] || rendering_source.in_deletion)
 		return
 	if(!rendering_source.our_mask)
 		CRASH("Attempted to start rendering a light source with a null mask.")
