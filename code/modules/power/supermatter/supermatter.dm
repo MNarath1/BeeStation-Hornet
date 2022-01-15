@@ -172,6 +172,8 @@ GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
 	var/power_changes = TRUE
 	///Disables the sm's proccessing totally.
 	var/processes = TRUE
+	light_color = LIGHT_COLOR_YELLOW
+	light_mask_type = /atom/movable/lighting_mask/flicker
 
 /obj/machinery/power/supermatter_crystal/Initialize()
 	. = ..()
@@ -192,8 +194,10 @@ GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
 	RegisterSignal(src, COMSIG_ATOM_BSA_BEAM, .proc/call_explode)
 
 	soundloop = new(list(src), TRUE)
+	set_light(20,10,light_color,light_mask_type)
 
 /obj/machinery/power/supermatter_crystal/Destroy()
+	set_light(0)
 	investigate_log("has been destroyed.", INVESTIGATE_ENGINES)
 	SSair.atmos_air_machinery -= src
 	QDEL_NULL(radio)
