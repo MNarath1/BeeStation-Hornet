@@ -67,8 +67,8 @@
 #define ISEVEN(x) (x % 2 == 0)
 
 #define ISODD(x) (x % 2 != 0)
-
-#define ROUND_UP(x) (ISINTEGER(x) ? round(x) + 1 : x)
+//Rounds up the integer value instead of rounding it down
+#define ROUND_UP_ON_INTEGER(x) (ISINTEGER(x) ? round(x) + 1 : x)
 /// Returns true if val is from min to max, inclusive.
 #define ISINRANGE(val, min, max) (min <= val && val <= max)
 
