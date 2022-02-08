@@ -15,11 +15,11 @@
 		_intial_source_setup(source)
 
 /datum/controller/subsystem/lighting/proc/_intial_source_setup(datum/light_source/source)
-	for(var/x in GET_CLAMPED_DELTA(source.x, source.light_range, world.maxx))
-		for(var/y in GET_CLAMPED_DELTA(source.y, source.light_range, world.maxy))
+	for(var/x in GET_CLAMPED_DELTA(source.x, ROUND_UP(source.light_range), world.maxx))
+		for(var/y in GET_CLAMPED_DELTA(source.y, ROUND_UP(source.light_range), world.maxy))
 			//Horray, this area is now exposed to light
 			LAZYADD(SSlighting.light_source_grid[source.z][x][y][LIGHT_EXPOSED], source)
-			source.exposed_tiles += list(list(source.z, x, y))	//We add the coordinates to a list of the lights so we can keep track of them more easily
+			source.exposed_tiles += list(source.z, x, y)	//We add the coordinates to a list of the lights so we can keep track of them more easily
 			//var/turf/T = locate(x, y, source.z);T.color=source.light_color
 			//Any viewers on the tile exposed to light now needs to see this light
 			for(var/viewer in SSlighting.light_source_grid[source.z][x][y][LIGHT_VIEWER])

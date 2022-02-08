@@ -68,6 +68,7 @@
 
 #define ISODD(x) (x % 2 != 0)
 
+#define ROUND_UP(x) (ISINTEGER(x) ? round(x) + 1 : x)
 /// Returns true if val is from min to max, inclusive.
 #define ISINRANGE(val, min, max) (min <= val && val <= max)
 
