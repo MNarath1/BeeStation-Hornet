@@ -13,18 +13,14 @@
 //remove them from the thing
 //anyone who can't see the light now can stop viewing it
 /datum/controller/subsystem/lighting/proc/_update_exposed_tiles(datum/light_source/source, atom/oldLoc)
-	//lazy
-	//Complete rebuild is required
-	//Remove all old light exposed things
-	if(oldLoc.x && oldLoc.y && oldLoc.z)
-		for(var/x in GET_CLAMPED_DELTA(oldLoc.x, oldLoc.light_range, world.maxx))
-			for(var/y in GET_CLAMPED_DELTA(oldLoc.y, oldLoc.light_range, world.maxy))
-				//Horray, this area is now exposed to light
-				LAZYREMOVE(SSlighting.light_source_grid[oldLoc.z][x][y][LIGHT_EXPOSED], source)
+	//We loop trough the exposed grid positions saved in the light source to remove any possible
+	for(var/list/l in source.exposed_tiles)
+		LAZYREMOVE(SSlighting.light_source_grid[l[1]][l[2]][l[3]][LIGHT_EXPOSED], source)
 				//var/turf/T = locate(x, y, oldLoc.z);T.color=null
 				//Any viewers on the tile exposed to light now needs to see this light
-				for(var/viewer in SSlighting.light_source_grid[oldLoc.z][x][y][LIGHT_VIEWER])
-					stop_viewing_source(viewer, source)
+		for(var/viewer in SSlighting.light_source_grid[l[1]][l[2]][l[3]][LIGHT_VIEWER])
+			stop_viewing_source(viewer, source)
+		LAZYREMOVE(source.exposed_tiles, l)
 	//We can reuse this since the loc is fine
 	if(source.x && source.y && source.z)
 		_intial_source_setup(source)

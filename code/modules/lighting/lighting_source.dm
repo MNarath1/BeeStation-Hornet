@@ -23,7 +23,7 @@
 	//OUR LIGHTING MASK
 	//EXISTS IN NULLSPACE, USED AS AN IMAGE FOR CLIENTS
 	var/atom/movable/lighting_mask/our_mask
-	var/in_deletion
+	var/list/exposed_tiles	//List of coordinates of all currently tiles that are exposed to this light
 
 // Thanks to Lohikar for flinging this tiny bit of code at me, increasing my brain cell count from 1 to 2 in the process.
 // This macro will only offset up to 1 tile, but anything with a greater offset is an outlier and probably should handle its own lighting offsets.
@@ -32,6 +32,7 @@
 #define UPDATE_APPROXIMATE_PIXEL_TURF var/_mask = GET_APPROXIMATE_PIXEL_DIR(top_atom.pixel_x, top_atom.pixel_y); pixel_turf = _mask ? (get_step(source_turf, _mask) || source_turf) : source_turf
 
 /datum/light_source/New(var/atom/movable/owner, mask_type)
+	exposed_tiles = new/list()
 	source_atom = owner // Set our new owner.
 	LAZYADD(source_atom.light_sources, src)
 	//Find the atom that contains us
@@ -67,7 +68,6 @@
 	log_lighting("Lighting source created at [x], [y], [z] with radius of [light_range]")
 
 /datum/light_source/Destroy(...)
-	in_deletion = TRUE
 	SSlighting.destroy_source(src)
 	source_atom.light = null
 	//Remove references to ourself.
