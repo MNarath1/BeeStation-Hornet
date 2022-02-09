@@ -11,6 +11,7 @@
 	//Add the source to the lighting grid
 	if(source.z && source.x && source.y)
 		LAZYADD(SSlighting.light_source_grid[source.z][source.x][source.y][LIGHT_SOURCE], source)
+		source.tile_coordinates += list(source.z, source.x, source.y)
 		//Set up the exposed point grid
 		_intial_source_setup(source)
 
@@ -19,7 +20,7 @@
 		for(var/y in GET_CLAMPED_DELTA(source.y, ROUND_UP_ON_INTEGER(source.light_range), world.maxy))
 			//Horray, this area is now exposed to light
 			LAZYADD(SSlighting.light_source_grid[source.z][x][y][LIGHT_EXPOSED], source)
-			source.exposed_tiles += list(source.z, x, y)	//We add the coordinates to a list of the lights so we can keep track of them more easily
+			source.tile_coordinates += list(source.z, x, y)	//We add the coordinates to a list of the lights so we can keep track of them more easily
 			//var/turf/T = locate(x, y, source.z);T.color=source.light_color
 			//Any viewers on the tile exposed to light now needs to see this light
 			for(var/viewer in SSlighting.light_source_grid[source.z][x][y][LIGHT_VIEWER])
