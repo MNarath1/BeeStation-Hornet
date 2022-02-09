@@ -140,6 +140,9 @@ GLOBAL_LIST_INIT(blacklisted_automated_baseturfs, typecacheof(list(
 	//Since the old turf was removed from lights_affecting, readd the new turf here
 	if(W.lights_affecting)
 		for(var/atom/movable/lighting_mask/mask as() in W.lights_affecting)
+			if(!mask.attached_atom)
+				lights_affecting -= mask
+				continue
 			LAZYADD(mask.affecting_turfs, W)
 
 	if(W.opacity != old_opacity)
