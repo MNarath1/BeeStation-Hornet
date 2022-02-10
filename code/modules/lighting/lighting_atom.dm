@@ -71,9 +71,12 @@
 // If we have opacity, make sure to tell (potentially) affected light sources.
 /atom/movable/Destroy()
 	var/turf/T = loc
-	. = ..()
-	if(light)
+	if(light)	//If just QDEL isn't fast enough for the GC then lets just do these removals earlier
+		light.contained_atom = null
+		light.source_atom = null
+		light.UnregisterSignal(src, COMSIG_MOVABLE_MOVED)
 		QDEL_NULL(light)
+	. = ..()
 	if (opacity && istype(T))
 		var/old_has_opaque_atom = T.has_opaque_atom
 		T.recalc_atom_opacity()
@@ -105,12 +108,11 @@
 	. = ..()
 	if(!light_sources)
 		return
-	var/datum/light_source/L
-	var/thing
 	//Cycle through the light sources on this atom and tell them to update.
 	//Copy the list, as find_containing_atom will change this list.
-	for (thing in light_sources.Copy())
-		L = thing
+	for (var/datum/light_source/L in light_sources.Copy())
+		if(!L.source_atom)
+			continue
 		L.source_atom.update_light()
 		if(!isturf(loc))
 			L.find_containing_atom()

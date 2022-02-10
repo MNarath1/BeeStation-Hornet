@@ -254,8 +254,6 @@
 		LAZYREMOVE(M.do_afters, src)
 
 	targeted_by = null
-
-	QDEL_NULL(light)
 	QDEL_NULL(ai_controller)
 
 	return ..()
