@@ -72,9 +72,6 @@
 /atom/movable/Destroy()
 	var/turf/T = loc
 	if(light)	//If just QDEL isn't fast enough for the GC then lets just do these removals earlier
-		light.contained_atom = null
-		light.source_atom = null
-		light.UnregisterSignal(src, COMSIG_MOVABLE_MOVED)
 		QDEL_NULL(light)
 	. = ..()
 	if (opacity && istype(T))

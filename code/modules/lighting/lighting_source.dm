@@ -70,13 +70,12 @@
 /datum/light_source/Destroy(...)
 	SSlighting.destroy_source(src)
 	//Remove references to ourself.
-	if(source_atom)	//may already have been deleted by the destroy proc of the parent atom
-		LAZYREMOVE(source_atom?.light_sources, src)
-		LAZYREMOVE(contained_atom?.light_sources, src)
-		UnregisterSignal(contained_atom, COMSIG_MOVABLE_MOVED)
-		source_atom.light = null
-		contained_atom = null
-		source_atom = null
+	LAZYREMOVE(source_atom?.light_sources, src)
+	LAZYREMOVE(contained_atom?.light_sources, src)
+	UnregisterSignal(contained_atom, COMSIG_MOVABLE_MOVED)
+	source_atom.light = null
+	contained_atom = null
+	source_atom = null
 	QDEL_NULL(our_mask)
 	return ..()
 
