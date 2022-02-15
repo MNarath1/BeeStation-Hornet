@@ -92,11 +92,12 @@
 	if(old_z != source.z)
 		stop_rendering_source(source)
 		return
-	var/delta_x = (source.x - old_x) * world.icon_size
-	var/delta_y = (source.y - old_y) * world.icon_size
+	var/delta_x = (source.x - grid_x) * world.icon_size
+	var/delta_y = (source.y - grid_y) * world.icon_size
 	var/image/I = sources_visible[source]
 	I.pixel_x += delta_x
-	I.pixel_y += delta_y
+	I.pixel_x = delta_x
+	I.pixel_y = delta_y
 	//If the image moved out of view, stop viewing it.
 	if(!is_source_in_view(source))
 		stop_rendering_source(source)
