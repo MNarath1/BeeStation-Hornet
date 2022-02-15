@@ -5,6 +5,7 @@
 	//Stop rendering everything
 	for(var/source in viewer.sources_visible)
 		viewer.stop_rendering_source(source)
+	viewer.forceMove(get_turf(viewer.containing_atom))	//We need to move the viewer to its new location
 	//Add ourselves to the light viewer list
 	if(viewer.grid_x && viewer.grid_y && viewer.grid_z)
 		//Begin rendering lights in view
