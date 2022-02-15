@@ -1,5 +1,3 @@
-#define GET_CLAMPED_DELTA(start, offset, limit) CLAMP(start - offset, 1, limit) to CLAMP(start + offset, 1, limit)
-
 /datum/controller/subsystem/lighting/proc/move_source(datum/light_source/source, atom/oldLoc)
 	//Move the source
 	if(source.tile_coordinates.len)
@@ -28,5 +26,3 @@
 	//We can reuse this since the loc is fine
 	if(source.x && source.y && source.z)
 		_intial_source_setup(source)
-
-#undef GET_CLAMPED_DELTA

@@ -1,6 +1,3 @@
-
-#define GET_CLAMPED_DELTA(start, offset, limit) CLAMP(start - offset, 1, limit) to CLAMP(start + offset, 1, limit)
-
 /datum/controller/subsystem/lighting/proc/destroy_source(datum/light_source/source)
 	//Lighting is not initialized yet
 	if(!SSlighting.initialized)
@@ -27,5 +24,3 @@
 
 /datum/controller/subsystem/lighting/proc/_defer_source_deletion(datum/light_source/source)
 	deferred_events[LIGHT_DEFER_DESTROY] += source
-
-#undef GET_CLAMPED_DELTA
