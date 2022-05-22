@@ -23,6 +23,8 @@
 	///Used primarially as a hint to be reasoned about by our [controller], and as the id of our bucket
 	///Should not be modified directly outside of [start_loop]
 	var/timer = 0
+	///Is this loop running or not
+	var/running = FALSE
 
 /datum/move_loop/New(datum/movement_packet/owner, datum/controller/subsystem/movement/controller, atom/moving, priority, flags, datum/extra_info)
 	src.owner = owner
@@ -45,6 +47,7 @@
 /datum/move_loop/proc/start_loop()
 	SHOULD_CALL_PARENT(TRUE)
 	SEND_SIGNAL(src, COMSIG_MOVELOOP_START)
+	running = TRUE
 	//If this is our first time starting to move with this loop
 	//And we're meant to start instantly
 	if(!timer && flags & MOVEMENT_LOOP_START_FAST)
@@ -54,6 +57,7 @@
 
 /datum/move_loop/proc/stop_loop()
 	SHOULD_CALL_PARENT(TRUE)
+	running = FALSE
 	SEND_SIGNAL(src, COMSIG_MOVELOOP_STOP)
 
 /datum/move_loop/proc/info_deleted(datum/source)
